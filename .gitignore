@@ -1,0 +1,16 @@
+# Build artifacts
+build/
+output/
+src/
+
+# Docker volumes
+.docker/
+
+# Temporary files
+*.tmp
+*.log
+
+# Downloaded source archives
+*.tar.*
+*.tgz
+*.zip
