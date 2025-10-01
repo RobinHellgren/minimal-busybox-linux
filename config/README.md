@@ -21,9 +21,10 @@ config/
 
 **Current Configuration Philosophy**:
 - **Minimal footprint**: Only essential features enabled
-- **Container-ready**: Full namespace and cgroup support
 - **Security-focused**: Essential security features enabled
 - **Hardware-minimal**: Most drivers disabled to reduce size
+
+**Note**: Container/namespace support (CONFIG_NAMESPACES, CONFIG_CGROUPS, etc.) is included in the config but can be removed if not needed for your use case.
 
 **Key Features Enabled**:
 
@@ -51,21 +52,6 @@ CONFIG_SYSFS=y                   # /sys filesystem
 CONFIG_TMPFS=y                   # Temporary filesystem
 CONFIG_DEVTMPFS=y                # Device filesystem
 CONFIG_DEVTMPFS_MOUNT=y          # Auto-mount /dev
-```
-
-#### Container Support
-```
-CONFIG_NAMESPACES=y              # Namespace support
-CONFIG_UTS_NS=y                  # UTS namespace (hostname isolation)
-CONFIG_IPC_NS=y                  # IPC namespace
-CONFIG_USER_NS=y                 # User namespace
-CONFIG_PID_NS=y                  # Process ID namespace
-CONFIG_NET_NS=y                  # Network namespace
-CONFIG_CGROUPS=y                 # Control groups
-CONFIG_CGROUP_FREEZER=y          # Freeze/thaw processes
-CONFIG_CGROUP_DEVICE=y           # Device access control
-CONFIG_CGROUP_CPUACCT=y          # CPU accounting
-CONFIG_MEMCG=y                   # Memory control group
 ```
 
 #### Network Support (Minimal)
@@ -110,53 +96,17 @@ To add support for specific hardware:
    CONFIG_USB_STORAGE=y           # USB storage devices
    CONFIG_E1000=y                 # Intel network card
    ```
-3. Update `scripts/build/build-kernel.sh` to use your config
-
-To reduce size further:
-```
-# CONFIG_NET is not set             # Remove networking entirely
-# CONFIG_TTY is not set             # Remove terminal support
-# CONFIG_PROC_FS is not set         # Remove /proc (risky)
-```
+3. Update `scripts/build-scripts/build-kernel.sh` to use your config
 
 ## System Configuration (`system/`)
 
 ### init.sh
 
-**Purpose**: Template for the custom init script that becomes `/init` in the root filesystem
+**Purpose**: Custom init script that becomes `/init` in the root filesystem. This file is copied directly by the build process.
 
-**Current Implementation**:
-```bash
-#!/bin/sh
+**Location**: `config/system/init.sh`
 
-# Mount essential filesystems
-echo "Mounting filesystems..."
-/bin/mount -t proc proc /proc
-/bin/mount -t sysfs sysfs /sys
-/bin/mount -t devtmpfs devtmpfs /dev
-
-# Create device nodes if needed
-[ -c /dev/console ] || /bin/mknod /dev/console c 5 1
-[ -c /dev/null ] || /bin/mknod /dev/null c 1 3
-[ -c /dev/zero ] || /bin/mknod /dev/zero c 1 5
-[ -c /dev/tty ] || /bin/mknod /dev/tty c 5 0
-
-# Set up basic environment
-export PATH="/bin:/sbin:/usr/bin:/usr/sbin"
-export HOME="/root"
-export TERM="linux"
-
-echo "Minimal Linux system started"
-echo "Welcome to minimal-busybox-linux!"
-echo "Available commands: $(ls /bin | tr '\n' ' ')"
-
-# Start an interactive shell with proper TTY setup
-while true; do
-    /bin/sh < /dev/console > /dev/console 2>&1
-    echo "Shell exited, restarting..."
-    sleep 1
-done
-```
+**How it's used**: During the rootfs build, this file is copied into the initramfs as `/init`
 
 **Key Functions**:
 
@@ -194,11 +144,11 @@ done
 
 **Add service startup**:
 ```bash
-# Start SSH daemon
+# Start SSH daemon (if added to rootfs)
 /usr/sbin/sshd
 
-# Start container runtime
-/usr/bin/containerd &
+# Start custom service
+/usr/bin/myservice &
 ```
 
 **Add logging**:
@@ -231,24 +181,7 @@ echo "root:password" | /usr/sbin/chpasswd
 3. **Logging**: Include echo statements for debugging
 4. **Idempotent**: Script should work if run multiple times
 
-### Version Management
-Track configuration changes in git:
-```bash
-git add config/
-git commit -m "Enable USB support for testing"
-```
-
 ## Advanced Customization
-
-### Multiple Configurations
-Create variant configs for different use cases:
-```
-config/kernel/
-├── minimal.config      # Base minimal config
-├── container.config    # Optimized for containers
-├── embedded.config     # For embedded systems
-└── debug.config        # With debugging enabled
-```
 
 ### Conditional Features
 Use environment variables in build scripts:

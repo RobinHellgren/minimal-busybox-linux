@@ -26,46 +26,9 @@ fi
 
 cd linux-${KERNEL_VERSION}
 
-# Create minimal kernel config
-echo "Creating minimal kernel config..."
-make defconfig
-
-# Configure for minimal system - disable unnecessary features
-scripts/config --disable CONFIG_SOUND
-scripts/config --disable CONFIG_WIRELESS
-scripts/config --disable CONFIG_WLAN
-scripts/config --disable CONFIG_BT
-scripts/config --disable CONFIG_DRM
-scripts/config --disable CONFIG_FB
-scripts/config --disable CONFIG_USB_HID
-scripts/config --disable CONFIG_HID
-scripts/config --disable CONFIG_STAGING
-scripts/config --disable CONFIG_DEBUG_KERNEL
-scripts/config --disable CONFIG_DEBUG_INFO
-
-# Enable essential features
-scripts/config --enable CONFIG_EMBEDDED
-scripts/config --enable CONFIG_EXPERT
-scripts/config --enable CONFIG_DEVTMPFS
-scripts/config --enable CONFIG_DEVTMPFS_MOUNT
-scripts/config --enable CONFIG_PROC_FS
-scripts/config --enable CONFIG_SYSFS
-scripts/config --enable CONFIG_TMPFS
-
-# Container support for K8s
-scripts/config --enable CONFIG_NAMESPACES
-scripts/config --enable CONFIG_UTS_NS
-scripts/config --enable CONFIG_IPC_NS
-scripts/config --enable CONFIG_USER_NS
-scripts/config --enable CONFIG_PID_NS
-scripts/config --enable CONFIG_NET_NS
-scripts/config --enable CONFIG_CGROUPS
-scripts/config --enable CONFIG_CGROUP_FREEZER
-scripts/config --enable CONFIG_CGROUP_DEVICE
-scripts/config --enable CONFIG_CGROUP_CPUACCT
-scripts/config --enable CONFIG_MEMCG
-
-# Use olddefconfig to resolve any conflicts automatically
+# Apply minimal kernel config
+echo "Applying minimal kernel config..."
+cp ${CONFIG_DIR}/minimal.config .config
 make olddefconfig
 
 # Build kernel

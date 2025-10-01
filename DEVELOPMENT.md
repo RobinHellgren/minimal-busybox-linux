@@ -11,7 +11,7 @@ For rapid iteration while developing:
 ```bash
 # 1. Make changes to configuration or scripts
 vim config/kernel/minimal.config
-vim scripts/build/build-rootfs.sh
+vim scripts/build-scripts/build-rootfs.sh
 
 # 2. Build only what changed
 make kernel    # If kernel config changed
@@ -106,15 +106,6 @@ ip link
 ping 127.0.0.1
 ```
 
-#### Container Features Testing
-```bash
-# Test namespaces (if configured)
-unshare --pid --fork --mount-proc sh
-ps  # Should only show current processes
-
-# Test cgroups (basic)
-ls /sys/fs/cgroup/
-```
 
 ### Performance Testing
 
@@ -150,7 +141,7 @@ du -h build/rootfs/
 make kernel V=1
 
 # Check kernel config
-docker run --rm -v $(pwd):/build ephemeral-k8s-builder bash -c "
+docker run --rm -v $(pwd):/build minimal-busybox-linux-builder bash -c "
 cd /build/build/kernel/linux-*/
 make menuconfig  # Interactive config check
 "
@@ -165,7 +156,7 @@ make kernel 2>&1 | tee kernel.log
 make rootfs 2>&1 | tee rootfs.log
 
 # Check BusyBox config
-docker run --rm -v $(pwd):/build ephemeral-k8s-builder bash -c "
+docker run --rm -v $(pwd):/build minimal-busybox-linux-builder bash -c "
 cd /build/build/rootfs/busybox-*/
 make menuconfig
 "
@@ -189,7 +180,7 @@ sudo umount /tmp/iso
 ### Runtime Debugging
 
 #### Boot Debugging
-Enable verbose kernel output by editing `scripts/build/build-iso.sh`:
+Enable verbose kernel output by editing `scripts/build-scripts/build-iso.sh`:
 
 ```bash
 # Change from:
@@ -200,7 +191,7 @@ APPEND initrd=/boot/initramfs.gz console=tty0 console=ttyS0,115200 init=/init rd
 ```
 
 #### Init Script Debugging
-Add debug output to init script in `scripts/build/build-rootfs.sh`:
+Add debug output to init script in `config/system/init.sh`:
 
 ```bash
 # Add to init script
@@ -222,7 +213,7 @@ cd /build/build/kernel/linux-*/
 make menuconfig
 
 cd /build/build/rootfs/busybox-*/
-./busybox --help
+./busybox --list
 ```
 
 ### Common Debugging Scenarios
@@ -282,9 +273,9 @@ docker run -it --rm -v $(pwd):/build minimal-busybox-linux-builder bash
 
 # Test build steps manually
 cd /build
-bash scripts/build/build-kernel.sh
-bash scripts/build/build-rootfs.sh
-bash scripts/build/build-iso.sh
+bash scripts/build-scripts/build-kernel.sh
+bash scripts/build-scripts/build-rootfs.sh
+bash scripts/build-scripts/build-iso.sh
 ```
 
 ## Code Quality

@@ -5,9 +5,9 @@ A minimal Linux distribution build system for creating lightweight Linux environ
 ## Overview
 
 This project builds a complete Linux system from scratch using:
-- **Linux Kernel 6.6.58**: Minimal configuration optimized for containers
+- **Linux Kernel 6.6.58**: Minimal configuration with essential features
 - **BusyBox 1.36.1**: Provides ~300 Unix utilities in a single binary
-- **Custom Init System**: Lightweight replacement for systemd
+- **Custom Init System**: Lightweight shell-based init
 - **Docker Build Environment**: Ensures reproducible builds across platforms
 
 **Final Result**: ~15-25MB bootable ISO with full Linux functionality
@@ -36,7 +36,7 @@ This project builds a complete Linux system from scratch using:
 
 3. **Create bootable USB:**
    ```bash
-   sudo dd if=output/ephemeral-k8s.iso of=/dev/sdX bs=1M status=progress
+   sudo dd if=output/minimal-busybox-linux.iso of=/dev/sdX bs=1M status=progress
    ```
 
 ## Build Targets
@@ -63,7 +63,7 @@ This project builds a complete Linux system from scratch using:
    ↓
 3. make kernel
    - Download Linux kernel source
-   - Apply minimal configuration
+   - Apply minimal configuration from config/kernel/minimal.config
    - Compile kernel (bzImage)
    - Copy to output/vmlinuz
    ↓
@@ -71,7 +71,7 @@ This project builds a complete Linux system from scratch using:
    - Download BusyBox source
    - Compile static binary
    - Create filesystem structure
-   - Create custom init script
+   - Copy init script from config/system/init.sh
    - Generate initramfs.gz
    ↓
 5. make iso
@@ -119,11 +119,10 @@ minimal-busybox-linux/
 │   └── system/           # System configurations
 │       └── init.sh       # Custom init script
 ├── scripts/              # Build and utility scripts
-│   ├── build/            # Core build scripts
-│   │   ├── build-kernel.sh   # Kernel compilation
-│   │   ├── build-rootfs.sh   # Root filesystem creation
-│   │   └── build-iso.sh      # ISO image creation
-│   └── utils/            # Utility scripts
+│   └── build-scripts/    # Core build scripts
+│       ├── build-kernel.sh   # Kernel compilation
+│       ├── build-rootfs.sh   # Root filesystem creation
+│       └── build-iso.sh      # ISO image creation
 └── output/               # Final build outputs
     ├── vmlinuz           # Compiled kernel
     ├── initramfs.gz      # Root filesystem archive
@@ -183,7 +182,7 @@ make kernel 2>&1 | tee kernel-build.log
 ```
 
 **Test with verbose kernel output:**
-Edit `scripts/build/build-iso.sh` and change boot parameters from `quiet` to `debug loglevel=7`
+Edit `scripts/build-scripts/build-iso.sh` and change boot parameters to include `debug loglevel=7`
 
 **Access QEMU monitor:**
 In QEMU GUI: Ctrl+Alt+2 (Ctrl+Alt+1 to return to VM)
@@ -191,10 +190,10 @@ In QEMU GUI: Ctrl+Alt+2 (Ctrl+Alt+1 to return to VM)
 ## Use Cases
 
 **Perfect for:**
-- Kubernetes nodes with minimal attack surface
-- Container host operating systems
+- Embedded systems and IoT devices
+- Minimal VM images
 - CI/CD build environments
-- Edge computing deployments
+- Testing and development environments
 - Security research and testing
 - Educational purposes (Linux internals)
 
@@ -202,7 +201,7 @@ In QEMU GUI: Ctrl+Alt+2 (Ctrl+Alt+1 to return to VM)
 - Ubuntu Server ISO: ~1.4GB
 - CentOS Minimal: ~1.8GB
 - Alpine Linux: ~130MB
-- **ephemeral-k8s**: ~15-25MB
+- **minimal-busybox-linux**: ~15-25MB
 
 ## Contributing
 

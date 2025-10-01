@@ -2,6 +2,7 @@
 
 set -e
 
+KERNEL_VERSION=${1:-6.6.58}
 BUILD_DIR="/build/build"
 OUTPUT_DIR="/build/output"
 ISO_DIR="/build/build/iso"
@@ -9,7 +10,7 @@ ISO_DIR="/build/build/iso"
 echo "Creating bootable ISO image..."
 
 # Check if kernel and initramfs exist in build directories
-KERNEL_FILE="/build/build/kernel/linux-6.6.58/arch/x86/boot/bzImage"
+KERNEL_FILE="/build/build/kernel/linux-${KERNEL_VERSION}/arch/x86/boot/bzImage"
 INITRAMFS_FILE="/build/build/rootfs/initramfs.gz"
 
 if [ ! -f "${KERNEL_FILE}" ]; then
@@ -30,8 +31,6 @@ mkdir -p ${BUILD_DIR}/iso
 # Copy kernel and initramfs from build directories
 cp ${KERNEL_FILE} ${ISO_DIR}/boot/vmlinuz
 cp ${INITRAMFS_FILE} ${ISO_DIR}/boot/initramfs.gz
-
-# syslinux tools are already installed in the Docker image
 
 # Create isolinux configuration
 cat > ${ISO_DIR}/boot/isolinux/isolinux.cfg << 'EOF'

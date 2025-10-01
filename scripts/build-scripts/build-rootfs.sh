@@ -44,39 +44,8 @@ cp -r _install/* ${ROOTFS_DIR}/
 cd ${ROOTFS_DIR}
 mkdir -p dev proc sys tmp var/log etc/init.d
 
-# Create minimal init system
-cat > init << 'EOF'
-#!/bin/sh
-
-# Mount essential filesystems
-echo "Mounting filesystems..."
-/bin/mount -t proc proc /proc
-/bin/mount -t sysfs sysfs /sys
-/bin/mount -t devtmpfs devtmpfs /dev
-
-# Create device nodes if needed
-[ -c /dev/console ] || /bin/mknod /dev/console c 5 1
-[ -c /dev/null ] || /bin/mknod /dev/null c 1 3
-[ -c /dev/zero ] || /bin/mknod /dev/zero c 1 5
-[ -c /dev/tty ] || /bin/mknod /dev/tty c 5 0
-
-# Set up basic environment
-export PATH="/bin:/sbin:/usr/bin:/usr/sbin"
-export HOME="/root"
-export TERM="linux"
-
-echo "Minimal Linux system started"
-echo "Welcome to minimal-busybox-linux!"
-echo "Available commands: $(ls /bin | tr '\n' ' ')"
-
-# Start an interactive shell with proper TTY setup
-while true; do
-    /bin/sh < /dev/console > /dev/console 2>&1
-    echo "Shell exited, restarting..."
-    sleep 1
-done
-EOF
-
+# Copy init script from config
+cp /build/config/system/init.sh init
 chmod +x init
 
 # Create basic /etc/passwd

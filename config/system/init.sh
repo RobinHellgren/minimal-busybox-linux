@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# Enhanced init script for ephemeral-k8s minimal Linux
 # This init script sets up the basic system environment
 
 export PATH="/bin:/sbin:/usr/bin:/usr/sbin"
@@ -10,7 +9,7 @@ print_msg() {
     echo -e "\033[32m[INIT]\033[0m $1"
 }
 
-print_msg "Starting ephemeral-k8s minimal Linux system..."
+print_msg "Starting minimal Linux system..."
 
 # Mount essential filesystems
 print_msg "Mounting essential filesystems..."
@@ -39,9 +38,13 @@ echo "  Architecture: $(uname -m)"
 echo "  Hostname: $(hostname)"
 echo "  Memory: $(cat /proc/meminfo | grep MemTotal)"
 
-print_msg "ephemeral-k8s system ready!"
+print_msg "minimal Linux system ready!"
 print_msg "Available commands: $(ls /bin | tr '\n' ' ')"
 
 # Start interactive shell
 print_msg "Starting shell..."
-exec /bin/sh
+while true; do
+    /bin/sh < /dev/console > /dev/console 2>&1
+    echo "Shell exited, restarting..."
+    sleep 1
+done

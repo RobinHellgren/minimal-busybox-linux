@@ -14,3 +14,4 @@ src/
 *.tar.*
 *.tgz
 *.zip
+.claude

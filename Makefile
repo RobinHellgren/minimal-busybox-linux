@@ -23,7 +23,7 @@ docker-build:
 
 kernel: docker-build
 	@echo "Building Linux kernel $(KERNEL_VERSION)..."
-	$(DOCKER_RUN) bash /build/scripts/build/build-kernel.sh $(KERNEL_VERSION)
+	$(DOCKER_RUN) bash /build/scripts/build-scripts/build-kernel.sh $(KERNEL_VERSION)
 	@echo "Copying kernel to output directory..."
 	@mkdir -p $(OUTPUT_DIR)
 	@if [ -f $(BUILD_DIR)/kernel/linux-$(KERNEL_VERSION)/arch/x86/boot/bzImage ]; then \
@@ -36,7 +36,7 @@ kernel: docker-build
 
 rootfs: docker-build
 	@echo "Building minimal root filesystem..."
-	$(DOCKER_RUN) bash /build/scripts/build/build-rootfs.sh $(BUSYBOX_VERSION)
+	$(DOCKER_RUN) bash /build/scripts/build-scripts/build-rootfs.sh $(BUSYBOX_VERSION)
 	@echo "Copying initramfs to output directory..."
 	@mkdir -p $(OUTPUT_DIR)
 	@if [ -f $(BUILD_DIR)/rootfs/initramfs.gz ]; then \
@@ -49,7 +49,7 @@ rootfs: docker-build
 
 iso: kernel rootfs
 	@echo "Creating bootable ISO image..."
-	$(DOCKER_RUN) bash /build/scripts/build/build-iso.sh
+	$(DOCKER_RUN) bash /build/scripts/build-scripts/build-iso.sh $(KERNEL_VERSION)
 	@echo "Copying ISO to output directory..."
 	@if [ -f $(BUILD_DIR)/iso/minimal-busybox-linux.iso ]; then \
 		cp $(BUILD_DIR)/iso/minimal-busybox-linux.iso $(OUTPUT_DIR)/minimal-busybox-linux.iso; \

@@ -6,12 +6,11 @@ This directory contains all the build automation scripts for the minimal-busybox
 
 ```
 scripts/
-├── README.md           # This file
-├── build/              # Core build scripts
-│   ├── build-kernel.sh # Linux kernel compilation
-│   ├── build-rootfs.sh # Root filesystem creation
-│   └── build-iso.sh    # ISO image assembly
-└── utils/              # Utility scripts (future expansion)
+├── README.md              # This file
+└── build-scripts/         # Core build scripts
+    ├── build-kernel.sh    # Linux kernel compilation
+    ├── build-rootfs.sh    # Root filesystem creation
+    └── build-iso.sh       # ISO image assembly
 ```
 
 ## Build Scripts Overview
@@ -22,14 +21,13 @@ scripts/
 
 **What it does:**
 1. Downloads Linux kernel source from kernel.org
-2. Applies minimal configuration optimized for containers
+2. Applies minimal configuration from `config/kernel/minimal.config`
 3. Compiles kernel with parallel build (`-j$(nproc)`)
 4. Produces `bzImage` (compressed kernel image)
 
 **Key features:**
-- Uses `defconfig` as base configuration
-- Applies container-friendly settings (namespaces, cgroups)
-- Disables unnecessary features (sound, wireless, etc.)
+- Uses `config/kernel/minimal.config` for kernel configuration
+- Includes essential features and basic networking support
 - Uses `olddefconfig` to resolve configuration conflicts automatically
 
 **Inputs:**
@@ -39,18 +37,6 @@ scripts/
 - `build/kernel/linux-{VERSION}/arch/x86/boot/bzImage`
 - Copied to `output/vmlinuz` by Makefile
 
-**Configuration applied:**
-```bash
-# Essential container features
-scripts/config --enable CONFIG_NAMESPACES
-scripts/config --enable CONFIG_CGROUPS
-scripts/config --enable CONFIG_MEMCG
-
-# Disabled unnecessary features
-scripts/config --disable CONFIG_SOUND
-scripts/config --disable CONFIG_WIRELESS
-```
-
 ### 2. build-rootfs.sh
 
 **Purpose**: Creates a minimal root filesystem using BusyBox
@@ -58,13 +44,12 @@ scripts/config --disable CONFIG_WIRELESS
 **What it does:**
 1. Downloads and compiles BusyBox as a static binary
 2. Creates essential directory structure (`/dev`, `/proc`, `/sys`, etc.)
-3. Installs custom init script
+3. Copies init script from `config/system/init.sh`
 4. Creates basic system files (`/etc/passwd`, `/etc/group`)
 5. Packages everything into a compressed initramfs
 
 **Key features:**
 - Static BusyBox build (no shared library dependencies)
-- Custom init system (lightweight alternative to systemd)
 - Essential device nodes created at boot
 - Compressed with gzip for minimal size
 
@@ -119,17 +104,6 @@ rootfs/
 - `build/iso/minimal-busybox-linux.iso`
 - Copied to `output/minimal-busybox-linux.iso` by Makefile
 
-**Bootloader configuration:**
-```
-DEFAULT minimal
-PROMPT 0
-TIMEOUT 30
-
-LABEL minimal
-    KERNEL /boot/vmlinuz
-    APPEND initrd=/boot/initramfs.gz console=tty0 console=ttyS0,115200 init=/init rdinit=/init debug loglevel=7
-```
-
 ## Build Process Flow
 
 ```
@@ -137,7 +111,7 @@ Makefile
     ↓
 1. build-kernel.sh
    - Download Linux source
-   - Configure for minimal/container use
+   - Configure for minimal use
    - Compile bzImage
    - Result: vmlinuz
     ↓
@@ -166,7 +140,6 @@ All scripts run inside a Docker container with:
 **Volume mounting:**
 - Host project directory → `/build` in container
 - Ensures build artifacts persist on host
-- Permission handling via Makefile for output files
 
 ## Environment Variables
 
@@ -178,19 +151,14 @@ All scripts run inside a Docker container with:
 ## Customization Points
 
 ### Kernel Configuration
-Modify `build-kernel.sh` to change kernel features:
-```bash
-# Add new kernel features
-scripts/config --enable CONFIG_NEW_FEATURE
+Modify `config/kernel/minimal.config` to change kernel features
 
-# Disable features
-scripts/config --disable CONFIG_UNWANTED_FEATURE
-```
+### Init Script
+Modify `config/system/init.sh` to customize the boot process and system initialization
 
 ### Root Filesystem
 Modify `build-rootfs.sh` to customize the system:
 - Change BusyBox configuration
-- Modify init script behavior
 - Add additional files to rootfs
 - Change filesystem structure
 
@@ -202,13 +170,6 @@ Modify `build-iso.sh` to change boot behavior:
 - Boot menu options
 
 ## Debugging
-
-### Verbose Output
-Scripts include echo statements for key steps. For more detail:
-```bash
-# Run with bash -x for full tracing
-bash -x scripts/build/build-kernel.sh
-```
 
 ### Build Logs
 Capture build output for analysis:
@@ -230,7 +191,7 @@ All scripts use `set -e` to exit on any error. Common failure points:
 
 1. **Network issues**: Downloading source packages
 2. **Compilation errors**: Missing dependencies or configuration issues
-3. **Permission errors**: Docker volume mounting (handled by Makefile)
+3. **Permission errors**: Docker volume mounting
 4. **Disk space**: Large kernel builds require significant space
 
 ## Dependencies
