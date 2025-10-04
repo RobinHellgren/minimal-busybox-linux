@@ -85,26 +85,6 @@ This project builds a complete Linux system from scratch using:
    - Create hybrid ISO (CD/USB bootable)
    - Output: minimal-busybox-linux.iso
 ```
-
-### Architecture Decisions
-
-**Why Docker for builds?**
-- Ensures consistent build environment across different host systems
-- Isolates build dependencies from host system
-- Reproducible builds regardless of host distro
-
-**Why BusyBox?**
-- Single static binary provides 300+ Unix commands
-- No shared library dependencies
-- Proven reliability in embedded systems
-- ~1MB total size
-
-**Why Custom Init?**
-- systemd is too heavy for minimal systems
-- Custom init provides exactly what's needed
-- Fast boot time and minimal memory usage
-- Educational value - understand what init actually does
-
 ## Directory Structure
 
 ```
