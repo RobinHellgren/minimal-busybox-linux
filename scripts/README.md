@@ -161,11 +161,11 @@ make test
 - Perfect for CI/CD
 - 512MB RAM, 2 CPU cores
 
-**How to exit (in order of preference):**
-1. Type `poweroff` or `reboot` in the VM shell (cleanest exit)
-2. Press `Ctrl+A` then `X` to exit QEMU
-3. Press `Ctrl+A` then `C` to access QEMU monitor, then type `quit`
-4. Press `Ctrl+C` to force kill (last resort, may leave QEMU in bad state)
+**How to exit:**
+1. Type `poweroff` in the VM shell (recommended)
+2. Open another terminal and run: `killall qemu-system-x86_64`
+
+**Note**: Ctrl+C and Ctrl+A don't work - use `poweroff` or `killall`!
 
 **Usage:**
 ```bash
