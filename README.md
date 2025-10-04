@@ -142,6 +142,18 @@ minimal-busybox-linux/
 
 ## Configuration & Customization
 
+### Build Versions
+Edit `.env` to change package versions:
+```bash
+KERNEL_VERSION=6.6.58   # Linux kernel version
+BUSYBOX_VERSION=1.36.1  # BusyBox version
+```
+
+Or override for a single build:
+```bash
+KERNEL_VERSION=6.7.0 BUSYBOX_VERSION=1.35.0 make iso
+```
+
 ### Kernel Configuration
 Edit `config/kernel/minimal.config` to modify kernel features:
 - Enable/disable hardware support
@@ -155,10 +167,56 @@ Edit `config/system/init.sh` to customize:
 - Default services
 - Environment setup
 
-### Package Versions
-Edit `Makefile` to change:
-- `KERNEL_VERSION` (default: 6.6.58)
-- `BUSYBOX_VERSION` (default: 1.36.1)
+## Testing with QEMU
+
+The project includes two QEMU test modes located in `scripts/test-scripts/`:
+
+### GUI Mode (`make test`)
+Runs QEMU with a graphical window - best for visual interaction.
+
+**Controls:**
+- **Click in window** - Capture keyboard/mouse to VM (required for input!)
+- `Ctrl+Alt+G` - Release mouse/keyboard from VM
+- `Ctrl+Alt+1` - Switch to VM console
+- `Ctrl+Alt+2` - Switch to QEMU monitor
+- **Click X on window** - Exit QEMU (easiest method)
+
+**Important**:
+- You must click inside the QEMU window to send keyboard input to the VM
+- The shell runs on the VGA console (tty1) - you'll see the shell prompt in the graphical window
+- Headless mode uses the serial console instead
+
+**Use when:**
+- You want to see the graphical boot process
+- Testing interactively with mouse/keyboard
+- Exploring the system visually
+
+### Headless Mode (`make test-headless`)
+Runs QEMU in the terminal with serial console output - best for debugging.
+
+**How to exit:**
+- **Recommended**: Type `poweroff` in the VM shell
+- **Alternative**: Open another terminal and run `killall qemu-system-x86_64`
+
+**Note**:
+- All kernel/system messages appear in terminal
+- Ctrl+C and Ctrl+A commands don't work reliably - use `poweroff` instead
+
+**Use when:**
+- Debugging boot issues
+- Capturing boot logs
+- Running in SSH/remote sessions
+- CI/CD environments
+
+### Direct Script Usage
+
+You can also run the test scripts directly:
+```bash
+./scripts/test-scripts/test-local.sh      # GUI mode
+./scripts/test-scripts/test-headless.sh   # Headless mode
+```
+
+Both scripts check that `output/minimal-busybox-linux.iso` exists before starting.
 
 ## Troubleshooting
 

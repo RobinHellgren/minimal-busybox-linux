@@ -70,13 +70,13 @@ iso: kernel rootfs
 		exit 1; \
 	fi
 
-test: iso
+test:
 	@echo "Testing ISO with QEMU (GUI mode)..."
-	./test-local.sh
+	./scripts/test-scripts/test-local.sh
 
-test-headless: iso
+test-headless:
 	@echo "Testing ISO with QEMU (headless mode)..."
-	./test-headless.sh
+	./scripts/test-scripts/test-headless.sh
 
 clean:
 	@echo "Cleaning build artifacts..."

@@ -38,40 +38,63 @@ make test
 
 ### Local Testing with QEMU
 
+Test scripts are located in `scripts/test-scripts/`:
+
 #### GUI Mode Testing
 ```bash
 make test
-./test-local.sh
+# or
+./scripts/test-scripts/test-local.sh
 
 # Features:
 # - Full graphical interface
 # - Mouse and keyboard input
 # - Easy to use for interactive testing
 # - Good for filesystem exploration
+
+# Controls:
+# - Click in window: Capture keyboard/mouse (REQUIRED for input!)
+# - Ctrl+Alt+G: Release mouse/keyboard
+# - Click X button: Exit QEMU (easiest way)
+# - Ctrl+Alt+1: VM console
+# - Ctrl+Alt+2: QEMU monitor
+#
+# NOTE: You must click in the QEMU window to send keyboard input!
 ```
 
 #### Headless Mode Testing (Recommended for development)
 ```bash
 make test-headless
-./test-headless.sh
+# or
+./scripts/test-scripts/test-headless.sh
 
 # Features:
 # - All output in terminal
 # - Faster startup
 # - Easy to capture logs
 # - Better for debugging boot issues
+
+# How to exit:
+# - Type 'poweroff' in VM shell (recommended)
+# - From another terminal: killall qemu-system-x86_64
+# NOTE: Ctrl+C and Ctrl+A don't work - use poweroff!
 ```
 
 #### Custom QEMU Options
+Both test scripts accept additional QEMU arguments:
+
 ```bash
 # Test with more memory
-./test-local.sh -m 1024M
+./scripts/test-scripts/test-local.sh -m 1024M
 
 # Test with multiple CPUs
-./test-local.sh -smp 4
+./scripts/test-scripts/test-local.sh -smp 4
 
 # Test with network
-./test-local.sh -netdev user,id=net0 -device e1000,netdev=net0
+./scripts/test-scripts/test-local.sh -netdev user,id=net0 -device e1000,netdev=net0
+
+# Disable KVM acceleration
+./scripts/test-scripts/test-headless.sh -enable-kvm
 ```
 
 ### Testing Scenarios

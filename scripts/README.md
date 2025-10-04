@@ -7,10 +7,13 @@ This directory contains all the build automation scripts for the minimal-busybox
 ```
 scripts/
 ├── README.md              # This file
-└── build-scripts/         # Core build scripts
-    ├── build-kernel.sh    # Linux kernel compilation
-    ├── build-rootfs.sh    # Root filesystem creation
-    └── build-iso.sh       # ISO image assembly
+├── build-scripts/         # Core build scripts
+│   ├── build-kernel.sh    # Linux kernel compilation
+│   ├── build-rootfs.sh    # Root filesystem creation
+│   └── build-iso.sh       # ISO image assembly
+└── test-scripts/          # QEMU test scripts
+    ├── test-local.sh      # GUI mode testing
+    └── test-headless.sh   # Headless mode testing
 ```
 
 ## Build Scripts Overview
@@ -104,6 +107,75 @@ rootfs/
 - `build/iso/minimal-busybox-linux.iso`
 - Copied to `output/minimal-busybox-linux.iso` by Makefile
 
+## Test Scripts Overview
+
+### 1. test-local.sh (GUI Mode)
+
+**Purpose**: Test the built ISO in QEMU with a graphical interface
+
+**What it does:**
+1. Checks that `output/minimal-busybox-linux.iso` exists
+2. Launches QEMU with GUI display
+3. Configures KVM acceleration if available
+4. Sets up serial console output to terminal
+
+**Key features:**
+- Graphical window with VM display
+- Mouse and keyboard interaction
+- 512MB RAM, 2 CPU cores
+
+**Controls:**
+- **Click in window** - Capture keyboard/mouse to VM (REQUIRED for input!)
+- `Ctrl+Alt+G` - Release mouse/keyboard from VM
+- **Click X on window** - Exit QEMU (easiest method)
+- `Ctrl+Alt+1` - Switch to VM console
+- `Ctrl+Alt+2` - Switch to QEMU monitor
+
+**Important**: You must click inside the QEMU window before keyboard/mouse input will work.
+
+**Usage:**
+```bash
+make test
+# or
+./scripts/test-scripts/test-local.sh
+
+# With custom options
+./scripts/test-scripts/test-local.sh -m 1024M -smp 4
+```
+
+### 2. test-headless.sh (Console Mode)
+
+**Purpose**: Test the built ISO in QEMU without GUI (headless) - best for debugging
+
+**What it does:**
+1. Checks that `output/minimal-busybox-linux.iso` exists
+2. Launches QEMU in headless mode
+3. All output appears in the terminal via serial console
+4. No graphical window
+
+**Key features:**
+- All kernel/system messages in terminal
+- Easy to capture logs with `tee`
+- Works in SSH sessions
+- Perfect for CI/CD
+- 512MB RAM, 2 CPU cores
+
+**How to exit:**
+- **Recommended**: Type `poweroff` in the VM shell
+- **Alternative**: From another terminal, run `killall qemu-system-x86_64`
+
+**Note**: Ctrl+C and Ctrl+A keyboard shortcuts don't work in headless mode - you must use `poweroff` command or kill from another terminal.
+
+**Usage:**
+```bash
+make test-headless
+# or
+./scripts/test-scripts/test-headless.sh
+
+# Capture boot log
+make test-headless 2>&1 | tee boot.log
+```
+
 ## Build Process Flow
 
 ```
@@ -111,7 +183,7 @@ Makefile
     ↓
 1. build-kernel.sh
    - Download Linux source
-   - Configure for minimal use
+   - Configure from config/kernel/minimal.config
    - Compile bzImage
    - Result: vmlinuz
     ↓
@@ -119,7 +191,7 @@ Makefile
    - Download BusyBox source
    - Compile static binary
    - Create filesystem structure
-   - Create init script
+   - Copy init script from config/system/init.sh
    - Package as initramfs.gz
     ↓
 3. build-iso.sh
@@ -127,6 +199,10 @@ Makefile
    - Add bootloader (ISOLINUX)
    - Create bootable ISO
    - Result: minimal-busybox-linux.iso
+    ↓
+4. test-local.sh / test-headless.sh
+   - Boot ISO in QEMU
+   - Verify system functionality
 ```
 
 ## Docker Integration
