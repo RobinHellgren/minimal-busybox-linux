@@ -242,10 +242,11 @@ cd /build/build/rootfs/busybox-*/
 ### Common Debugging Scenarios
 
 #### "Kernel panic - not syncing: No working init found"
-1. Check that init script is executable
-2. Verify init script path in bootloader config
-3. Ensure essential filesystems are mounted
-4. Check that /init exists in initramfs
+1. Check that `/init` script exists and is executable in rootfs
+2. Verify init script path in bootloader config (`init=/init`)
+3. Check that `/init` has correct shebang (`#!/bin/sh`)
+4. Ensure BusyBox `/bin/sh` exists and is executable
+5. Verify `/init` was copied from `config/system/init.sh` during build
 
 #### "System hangs after kernel messages"
 1. Enable verbose kernel output
@@ -280,22 +281,34 @@ make test-headless # Test with QEMU console
 ```
 
 ### Environment Variables
+
+Build versions are configured in `.env`:
 ```bash
-# Customize build versions
+# Edit .env file
+vim .env
+
+# Or override for a single build
 KERNEL_VERSION=6.1.55 make kernel
 BUSYBOX_VERSION=1.35.0 make rootfs
 
-# Enable debug builds
-DEBUG=1 make all
+# Or both at once
+KERNEL_VERSION=6.7.0 BUSYBOX_VERSION=1.35.0 make iso
 ```
+
+**Note**: Environment variables override `.env` file values, which is useful for CI/CD matrix builds.
 
 ### Container Development
 ```bash
 # Enter build environment
-docker run -it --rm -v $(pwd):/build minimal-busybox-linux-builder bash
+docker run -it --rm -v $(pwd):/build \
+  -e KERNEL_VERSION=6.6.58 \
+  -e BUSYBOX_VERSION=1.36.1 \
+  minimal-busybox-linux-builder bash
 
-# Test build steps manually
+# Test build steps manually (inside container)
 cd /build
+export KERNEL_VERSION=6.6.58
+export BUSYBOX_VERSION=1.36.1
 bash scripts/build-scripts/build-kernel.sh
 bash scripts/build-scripts/build-rootfs.sh
 bash scripts/build-scripts/build-iso.sh
@@ -367,9 +380,12 @@ find build/rootfs/rootfs -type f -exec file {} \; | grep "not stripped"
 
 ### Release Build
 ```bash
+# Ensure .env has correct versions
+cat .env
+
 # Clean release build
 make clean
-KERNEL_VERSION=6.6.58 BUSYBOX_VERSION=1.36.1 make all
+make iso
 
 # Validate release
 make test-headless

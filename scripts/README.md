@@ -220,10 +220,17 @@ All scripts run inside a Docker container with:
 
 ## Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
+Build scripts require these environment variables to be set:
+
+| Variable | Default (in `.env`) | Description |
+|----------|---------------------|-------------|
 | `KERNEL_VERSION` | 6.6.58 | Linux kernel version to build |
 | `BUSYBOX_VERSION` | 1.36.1 | BusyBox version to build |
+
+**Configuration:**
+- Set in `.env` file (committed to repo)
+- Override via environment: `KERNEL_VERSION=6.7.0 make kernel`
+- Automatically passed to Docker container by Makefile
 
 ## Customization Points
 

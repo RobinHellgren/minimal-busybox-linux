@@ -237,6 +237,11 @@ Both scripts check that `output/minimal-busybox-linux.iso` exists before startin
 - This is normal - system is ready for input
 - Try pressing Enter or typing commands
 
+**Can't exit QEMU in headless mode:**
+- Type `poweroff` in the VM shell - this is the correct way
+- Or from another terminal: `killall qemu-system-x86_64`
+- Ctrl+C and Ctrl+A don't work due to how serial console is configured
+
 ### Debugging
 
 **View detailed build logs:**
@@ -247,8 +252,13 @@ make kernel 2>&1 | tee kernel-build.log
 **Test with verbose kernel output:**
 Edit `scripts/build-scripts/build-iso.sh` and change boot parameters to include `debug loglevel=7`
 
-**Access QEMU monitor:**
-In QEMU GUI: Ctrl+Alt+2 (Ctrl+Alt+1 to return to VM)
+**Capture full boot log:**
+```bash
+make test-headless 2>&1 | tee boot.log
+```
+
+**Access QEMU monitor (GUI mode):**
+Press `Ctrl+Alt+2` (press `Ctrl+Alt+1` to return to VM)
 
 ## Use Cases
 
