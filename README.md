@@ -6,11 +6,13 @@ A minimal Linux distribution build system for creating lightweight Linux environ
 
 This project builds a complete Linux system from scratch using:
 - **Linux Kernel 6.6.58**: Minimal configuration with essential features
-- **BusyBox 1.36.1**: Provides ~300 Unix utilities in a single binary
-- **Custom Init System**: Lightweight shell-based init
+- **BusyBox 1.36.1**: Provides ~300 Unix utilities in a single static binary
+- **Custom Init Script**: Shell script at `/init` that runs as PID 1 and uses BusyBox commands
 - **Docker Build Environment**: Ensures reproducible builds across platforms
 
 **Final Result**: ~15-25MB bootable ISO with full Linux functionality
+
+**How init works**: The kernel boots and executes `/init` (a shell script from `config/system/init.sh`), which then uses BusyBox utilities (`/bin/mount`, `/bin/sh`, etc.) to set up the system. BusyBox includes an init applet, but we use a custom shell script instead for simplicity.
 
 ## Features
 

@@ -41,10 +41,11 @@ echo "  Memory: $(cat /proc/meminfo | grep MemTotal)"
 print_msg "minimal Linux system ready!"
 print_msg "Available commands: $(ls /bin | tr '\n' ' ')"
 
-# Start interactive shell
-print_msg "Starting shell..."
-while true; do
-    /bin/sh < /dev/console > /dev/console 2>&1
-    echo "Shell exited, restarting..."
-    sleep 1
-done
+# Start shell on tty1 (VGA console) for GUI/keyboard access
+# This allows keyboard input to work in QEMU GUI mode
+setsid /bin/sh -c 'exec /bin/sh </dev/tty1 >/dev/tty1 2>&1' &
+
+# Start interactive shell on main console (serial port)
+# This is used for headless mode and serial console
+print_msg "Starting shell on console..."
+exec /bin/sh < /dev/console > /dev/console 2>&1

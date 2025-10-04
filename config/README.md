@@ -102,11 +102,16 @@ To add support for specific hardware:
 
 ### init.sh
 
-**Purpose**: Custom init script that becomes `/init` in the root filesystem. This file is copied directly by the build process.
+**Purpose**: Custom shell script that runs as PID 1 (the init process) when the system boots.
 
 **Location**: `config/system/init.sh`
 
-**How it's used**: During the rootfs build, this file is copied into the initramfs as `/init`
+**How it's used**:
+- During the rootfs build, this file is copied to `/init` in the initramfs
+- The kernel boots and executes `/init` as the first process (PID 1)
+- This script uses BusyBox commands to set up the system
+
+**Important**: This is a custom shell script, NOT BusyBox's init applet. While BusyBox includes an init implementation, we use this simpler shell script approach instead.
 
 **Key Functions**:
 

@@ -47,13 +47,14 @@ scripts/
 **What it does:**
 1. Downloads and compiles BusyBox as a static binary
 2. Creates essential directory structure (`/dev`, `/proc`, `/sys`, etc.)
-3. Copies init script from `config/system/init.sh`
+3. Copies init script from `config/system/init.sh` to `/init` in rootfs
 4. Creates basic system files (`/etc/passwd`, `/etc/group`)
 5. Packages everything into a compressed initramfs
 
 **Key features:**
 - Static BusyBox build (no shared library dependencies)
-- Essential device nodes created at boot
+- Custom shell script at `/init` runs as PID 1 (not BusyBox's init applet)
+- BusyBox provides all the commands the init script uses
 - Compressed with gzip for minimal size
 
 **Inputs:**
