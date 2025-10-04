@@ -2,7 +2,16 @@
 
 set -e
 
-BUSYBOX_VERSION=${1:-1.36.1}
+# Check for required environment variable
+if [ -z "$BUSYBOX_VERSION" ]; then
+    echo "Error: BUSYBOX_VERSION environment variable is not set"
+    echo "Please set it in your .env file or export it:"
+    echo "  export BUSYBOX_VERSION=1.36.1"
+    echo "Or specify it when running make:"
+    echo "  BUSYBOX_VERSION=1.36.1 make rootfs"
+    exit 1
+fi
+
 BUILD_DIR="/build/build/rootfs"
 OUTPUT_DIR="/build/output"
 

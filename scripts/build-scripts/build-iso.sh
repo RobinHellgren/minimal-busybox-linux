@@ -2,7 +2,16 @@
 
 set -e
 
-KERNEL_VERSION=${1:-6.6.58}
+# Check for required environment variable
+if [ -z "$KERNEL_VERSION" ]; then
+    echo "Error: KERNEL_VERSION environment variable is not set"
+    echo "Please set it in your .env file or export it:"
+    echo "  export KERNEL_VERSION=6.6.58"
+    echo "Or specify it when running make:"
+    echo "  KERNEL_VERSION=6.6.58 make iso"
+    exit 1
+fi
+
 BUILD_DIR="/build/build"
 OUTPUT_DIR="/build/output"
 ISO_DIR="/build/build/iso"
