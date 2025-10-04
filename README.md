@@ -199,12 +199,6 @@ In QEMU GUI: Ctrl+Alt+2 (Ctrl+Alt+1 to return to VM)
 - Security research and testing
 - Educational purposes (Linux internals)
 
-**Size Comparison:**
-- Ubuntu Server ISO: ~1.4GB
-- CentOS Minimal: ~1.8GB
-- Alpine Linux: ~130MB
-- **minimal-busybox-linux**: ~15-25MB
-
 ## Contributing
 
 This project demonstrates building a minimal Linux distribution from scratch. Key learning areas:
