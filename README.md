@@ -25,14 +25,18 @@ This project builds a complete Linux system from scratch using:
 
 1. **Build the complete system:**
    ```bash
-   make all
+   make iso   # Builds kernel, rootfs, and ISO
    ```
 
 2. **Test locally with QEMU:**
    ```bash
-   make test          # GUI mode
-   make test-headless # Console mode
+   make test          # GUI mode - graphical window
+   make test-headless # Console mode - serial output in terminal
    ```
+
+   **QEMU Controls:**
+   - **GUI mode**: Click X on window to exit. Press `Ctrl+Alt+G` to release mouse/keyboard
+   - **Headless mode**: Type `poweroff` in VM shell, or `killall qemu-system-x86_64` from another terminal
 
 3. **Create bootable USB:**
    ```bash
@@ -43,10 +47,9 @@ This project builds a complete Linux system from scratch using:
 
 | Target | Description |
 |--------|-------------|
-| `make all` | Build complete minimal Linux distribution |
+| `make iso` | Build complete system (kernel + rootfs + ISO) |
 | `make kernel` | Build Linux kernel only |
 | `make rootfs` | Build root filesystem only |
-| `make iso` | Create bootable ISO image |
 | `make test` | Test ISO with QEMU (GUI mode) |
 | `make test-headless` | Test ISO with QEMU (console mode) |
 | `make clean` | Clean all build artifacts |
@@ -57,7 +60,7 @@ This project builds a complete Linux system from scratch using:
 ### Build Process Flow
 
 ```
-1. make all
+1. make iso
    ↓
 2. docker build (create build environment)
    ↓
@@ -74,7 +77,7 @@ This project builds a complete Linux system from scratch using:
    - Copy init script from config/system/init.sh
    - Generate initramfs.gz
    ↓
-5. make iso
+5. Build ISO
    - Combine kernel + initramfs
    - Add ISOLINUX bootloader
    - Create hybrid ISO (CD/USB bootable)

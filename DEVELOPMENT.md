@@ -30,7 +30,7 @@ For thorough testing or before commits:
 
 ```bash
 make clean
-make all
+make iso
 make test
 ```
 
@@ -366,7 +366,7 @@ git tag -a v1.0.0 -m "Release v1.0.0"
 
 | Issue | Command | Solution |
 |-------|---------|----------|
-| Build fails | `make clean && make all` | Clean rebuild |
+| Build fails | `make clean && make iso` | Clean rebuild |
 | Permission errors | `docker run --rm -v $(pwd):/build minimal-busybox-linux-builder ls -la /build/output/` | Check volume permissions |
 | Boot hangs | `make test-headless` | Check console output |
 | Missing commands | `docker run --rm -v $(pwd):/build minimal-busybox-linux-builder /build/build/rootfs/busybox-*/busybox --list` | Verify BusyBox applets |
