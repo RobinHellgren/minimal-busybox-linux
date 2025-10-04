@@ -128,9 +128,9 @@ rootfs/
 **Controls:**
 - **Click in window** - Capture keyboard/mouse to VM (REQUIRED for input!)
 - `Ctrl+Alt+G` - Release mouse/keyboard from VM
-- **Click X on window** - Exit QEMU (easiest method)
 - `Ctrl+Alt+1` - Switch to VM console
-- `Ctrl+Alt+2` - Switch to QEMU monitor
+- `Ctrl+Alt+2` - Switch to QEMU monitor (for commands like `quit`)
+- Close window to exit
 
 **Important**: You must click inside the QEMU window before keyboard/mouse input will work.
 
@@ -161,11 +161,11 @@ make test
 - Perfect for CI/CD
 - 512MB RAM, 2 CPU cores
 
-**How to exit:**
-- **Recommended**: Type `poweroff` in the VM shell
-- **Alternative**: From another terminal, run `killall qemu-system-x86_64`
-
-**Note**: Ctrl+C and Ctrl+A keyboard shortcuts don't work in headless mode - you must use `poweroff` command or kill from another terminal.
+**How to exit (in order of preference):**
+1. Type `poweroff` or `reboot` in the VM shell (cleanest exit)
+2. Press `Ctrl+A` then `X` to exit QEMU
+3. Press `Ctrl+A` then `C` to access QEMU monitor, then type `quit`
+4. Press `Ctrl+C` to force kill (last resort, may leave QEMU in bad state)
 
 **Usage:**
 ```bash
