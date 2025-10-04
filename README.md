@@ -32,9 +32,13 @@ This project builds a complete Linux system from scratch using:
 
 2. **Test locally with QEMU:**
    ```bash
-   make test          # GUI mode
-   make test-headless # Console mode
+   make test          # GUI mode - graphical window
+   make test-headless # Console mode - serial output in terminal
    ```
+
+   **QEMU Controls:**
+   - **GUI mode**: Click X on window to exit. Press `Ctrl+Alt+G` to release mouse/keyboard
+   - **Headless mode**: Type `poweroff` in VM shell, or `killall qemu-system-x86_64` from another terminal
 
 3. **Create bootable USB:**
    ```bash
@@ -100,27 +104,31 @@ This project builds a complete Linux system from scratch using:
 ```
 minimal-busybox-linux/
 ├── README.md              # This file
-├── Makefile              # Build orchestration
-├── Dockerfile            # Build environment definition
-├── test-local.sh         # Local QEMU testing (GUI)
-├── test-headless.sh      # Local QEMU testing (console)
-├── build/                # Build artifacts (generated)
-│   ├── kernel/           # Kernel build workspace
-│   ├── rootfs/           # Root filesystem build workspace
-│   └── iso/              # ISO assembly workspace
-├── config/               # Configuration files
-│   ├── kernel/           # Kernel configurations
+├── Makefile               # Build orchestration
+├── Dockerfile             # Build environment definition
+├── .env                   # Build configuration (versions)
+├── build/                 # Build artifacts (generated)
+│   ├── kernel/            # Kernel build workspace
+│   ├── rootfs/            # Root filesystem build workspace
+│   └── iso/               # ISO assembly workspace
+├── config/                # Configuration files
+│   ├── kernel/            # Kernel configurations
 │   │   └── minimal.config # Minimal kernel config
-│   └── system/           # System configurations
-│       └── init.sh       # Custom init script
-├── scripts/              # Build and utility scripts
-│   └── build-scripts/    # Core build scripts
-│       ├── build-kernel.sh   # Kernel compilation
-│       ├── build-rootfs.sh   # Root filesystem creation
-│       └── build-iso.sh      # ISO image creation
-└── output/               # Final build outputs
-    ├── vmlinuz           # Compiled kernel
-    ├── initramfs.gz      # Root filesystem archive
+│   └── system/            # System configurations
+│       └── init.sh        # Custom init script
+├── scripts/               # Build and utility scripts
+│   ├── build-scripts/     # Core build scripts
+│   │   ├── build-kernel.sh   # Kernel compilation
+│   │   ├── build-rootfs.sh   # Root filesystem creation
+│   │   └── build-iso.sh      # ISO image creation
+│   └── test-scripts/      # QEMU test scripts
+│       ├── test-local.sh     # GUI mode testing
+│       └── test-headless.sh  # Headless mode testing
+├── src/                   # Source patches (currently unused)
+│   └── patches/           # Kernel/BusyBox patches
+└── output/                # Final build outputs
+    ├── vmlinuz            # Compiled kernel
+    ├── initramfs.gz       # Root filesystem archive
     └── minimal-busybox-linux.iso # Bootable ISO image
 ```
 
@@ -159,6 +167,57 @@ Edit `config/system/init.sh` to customize:
 - Default services
 - Environment setup
 
+## Testing with QEMU
+
+The project includes two QEMU test modes located in `scripts/test-scripts/`:
+
+### GUI Mode (`make test`)
+Runs QEMU with a graphical window - best for visual interaction.
+
+**Controls:**
+- **Click in window** - Capture keyboard/mouse to VM (required for input!)
+- `Ctrl+Alt+G` - Release mouse/keyboard from VM
+- `Ctrl+Alt+1` - Switch to VM console
+- `Ctrl+Alt+2` - Switch to QEMU monitor
+- **Click X on window** - Exit QEMU (easiest method)
+
+**Important**:
+- You must click inside the QEMU window to send keyboard input to the VM
+- The shell runs on the VGA console (tty1) - you'll see the shell prompt in the graphical window
+- Headless mode uses the serial console instead
+
+**Use when:**
+- You want to see the graphical boot process
+- Testing interactively with mouse/keyboard
+- Exploring the system visually
+
+### Headless Mode (`make test-headless`)
+Runs QEMU in the terminal with serial console output - best for debugging.
+
+**How to exit:**
+- **Recommended**: Type `poweroff` in the VM shell
+- **Alternative**: Open another terminal and run `killall qemu-system-x86_64`
+
+**Note**:
+- All kernel/system messages appear in terminal
+- Ctrl+C and Ctrl+A commands don't work reliably - use `poweroff` instead
+
+**Use when:**
+- Debugging boot issues
+- Capturing boot logs
+- Running in SSH/remote sessions
+- CI/CD environments
+
+### Direct Script Usage
+
+You can also run the test scripts directly:
+```bash
+./scripts/test-scripts/test-local.sh      # GUI mode
+./scripts/test-scripts/test-headless.sh   # Headless mode
+```
+
+Both scripts check that `output/minimal-busybox-linux.iso` exists before starting.
+
 ## Troubleshooting
 
 ### Common Issues
@@ -175,6 +234,11 @@ Edit `config/system/init.sh` to customize:
 **System hangs after "crng init done":**
 - This is normal - system is ready for input
 - Try pressing Enter or typing commands
+
+**Can't exit QEMU in headless mode:**
+- Type `poweroff` in the VM shell - this is the correct way
+- Or from another terminal: `killall qemu-system-x86_64`
+- Ctrl+C and Ctrl+A don't work due to how serial console is configured
 
 ### Debugging
 
